@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Ethik.Utility.Security</Title>
-    <Description></Description>
+    <Description>This NuGet package provides a set of utilities for handling security tasks in .NET applications. It includes tools to deal with passwords, token managements, and required extensions.</Description>
     <PackageProjectUrl>https://www.nuget.org/packages/Ethik.Utility.Security</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Version>1.0.0</Version>
