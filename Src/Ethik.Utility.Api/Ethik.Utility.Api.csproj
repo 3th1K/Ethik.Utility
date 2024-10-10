@@ -8,7 +8,7 @@
     <Description>This NuGet package provides a set of utilities for handling API tasks in .NET applications. It includes error handling, response generation, and useful extensions</Description>
     <PackageProjectUrl>https://www.nuget.org/packages/Ethik.Utility.Api</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>Mehedi Rahaman</Authors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);S125</NoWarn>
@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.6.19" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
-    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

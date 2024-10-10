@@ -1,5 +1,6 @@
 ﻿using Ethik.Utility.Api.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -146,5 +147,17 @@ public sealed class ApiResponse<T>
     public override string ToString()
     {
         return JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    /// <summary>
+    /// Gets the api result of the response
+    /// </summary>
+    /// <returns><see cref="IActionResult"/></returns>
+    public IActionResult Result()
+    {
+        return new ObjectResult(this)
+        {
+            StatusCode = this.StatusCode
+        };
     }
 }

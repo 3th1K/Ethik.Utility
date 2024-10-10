@@ -71,10 +71,10 @@ public class ApiError
     /// <returns>An <see cref="ApiExceptionDetails"/> object containing parsed details.</returns>
     private static ApiExceptionDetails ParseExceptionDetails(string exceptionString)
     {
-        var exceptionDetails = new ApiExceptionDetails();
+        ApiExceptionDetails exceptionDetails = new();
 
         // Extract exception type and message
-        var match = Regex.Match(exceptionString, @"^(?<type>[\w\.]+): (?<message>.+?)(?=\r\n|$)");
+        Match match = Regex.Match(exceptionString, @"^(?<type>[\w\.]+): (?<message>.+?)(?=\r\n|$)");
         if (match.Success)
         {
             exceptionDetails.Type = match.Groups["type"].Value;
@@ -82,7 +82,7 @@ public class ApiError
         }
 
         // Extract stack trace
-        var stackTraceIndex = exceptionString.IndexOf("   at ");
+        int stackTraceIndex = exceptionString.IndexOf("   at ");
         if (stackTraceIndex != -1)
         {
             exceptionDetails.StackTrace = exceptionString.Substring(stackTraceIndex)
@@ -93,7 +93,7 @@ public class ApiError
         }
 
         // Extract inner exception
-        var innerExceptionMatch = Regex.Match(exceptionString, @"(?<= ---> )[\s\S]*?(?=\r\n--- End of inner exception stack trace ---)");
+        Match innerExceptionMatch = Regex.Match(exceptionString, @"(?<= ---> )[\s\S]*?(?=\r\n--- End of inner exception stack trace ---)");
         if (innerExceptionMatch.Success)
         {
             exceptionDetails.InnerException = ParseExceptionDetails(innerExceptionMatch.Value);

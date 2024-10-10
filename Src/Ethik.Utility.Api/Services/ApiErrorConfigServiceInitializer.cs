@@ -40,7 +40,7 @@ internal class ApiErrorConfigServiceInitializer : IHostedService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unable to Initialilse ApiErrorConfigService");
-            throw;
+            throw new ArgumentException("Unable to Initialilse ApiErrorConfigService", ex);
         }
         return Task.CompletedTask;
     }

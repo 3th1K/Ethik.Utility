@@ -14,7 +14,7 @@ public class ApiErrorConfigService
 {
     private readonly ILogger<ApiErrorConfigService> _logger;
     private readonly string _jsonFilePath;
-    private static ConcurrentDictionary<string, ApiError> _errorCache = new ConcurrentDictionary<string, ApiError>();
+    private static ConcurrentDictionary<string, ApiError> _errorCache = new();
     private static bool _initialized = false;
     private readonly FileSystemWatcher _fileWatcher;
     private bool _disposed = false;
@@ -62,10 +62,16 @@ public class ApiErrorConfigService
                 if (!_initialized)
                 {
                     LoadErrorsFromJson(_jsonFilePath);  // Instance-specific data used in thread-safe initialization
-                    _initialized = true;
+                    //_initialized = true;
+                    SetInitialized();
                 }
             }
         }
+    }
+
+    public static void SetInitialized()
+    {
+        _initialized = true;
     }
 
     /// <summary>
@@ -118,7 +124,7 @@ public class ApiErrorConfigService
     {
         try
         {
-            var json = File.ReadAllText(jsonFilePath);
+            string json = File.ReadAllText(jsonFilePath);
             var errorConfiguration = JsonSerializer.Deserialize<ApiErrorConfiguration>(json);
 
             if (errorConfiguration == null || errorConfiguration.Errors == null)

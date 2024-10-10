@@ -53,11 +53,11 @@ public class JwtTokenServiceTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
 
-        Assert.AreEqual(_jwtSettings.Issuer, jwtToken.Issuer);
-        Assert.AreEqual(_jwtSettings.Audience, jwtToken.Audiences.First());
-        Assert.AreEqual(userId, jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
-        Assert.AreEqual(email, jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.UniqueName).Value);
-        Assert.AreEqual(role, jwtToken.Claims.First(x => x.Type == ClaimTypes.Role).Value);
+        Assert.That(jwtToken.Issuer, Is.EqualTo(_jwtSettings.Issuer));
+        Assert.That(jwtToken.Audiences.First(), Is.EqualTo(_jwtSettings.Audience));
+        Assert.That(jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value, Is.EqualTo(userId));
+        Assert.That(jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.UniqueName).Value, Is.EqualTo(email));
+        Assert.That(jwtToken.Claims.First(x => x.Type == ClaimTypes.Role).Value, Is.EqualTo(role));
     }
 
     [Test]
@@ -73,8 +73,8 @@ public class JwtTokenServiceTests
         var result = _sut.GetTokenDetails(token);
 
         // Assert
-        Assert.AreEqual(token, result.Token);
-        Assert.AreEqual("Bearer", result.TokenType);
+        Assert.That(result.Token, Is.EqualTo(token));
+        Assert.That(result.TokenType, Is.EqualTo("Bearer"));
         Assert.IsTrue(result.Expiration > DateTime.UtcNow);
     }
 

@@ -1,4 +1,5 @@
-﻿using Ethik.Utility.Api.Models;
+﻿using Ethik.Utility.Api.Exceptions;
+using Ethik.Utility.Api.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -36,17 +37,17 @@ namespace Ethik.Utility.Api.Services
 
             switch (exception)
             {
-                //case ValidationException validationException:
-                //    apiErrors = validationException.Errors.Select(e => new ApiError
-                //    {
-                //        ErrorCode = e.ErrorCode,
-                //        Field = e.PropertyName,
-                //        ErrorMessage = e.ErrorMessage,
-                //    }).ToList();
+                case ApiValidationException validationException:
+                    apiErrors = validationException.Errors.Select(e => new ApiError
+                    {
+                        ErrorCode = e.ErrorCode,
+                        Field = e.PropertyName,
+                        ErrorMessage = e.ErrorMessage,
+                    }).ToList();
 
-                //    apiResponse = ApiResponse<ApiError>.Failure("Validation Error", StatusCodes.Status400BadRequest, apiErrors);
-                //    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                //    break;
+                    apiResponse = ApiResponse<ApiError>.Failure("Validation Error", StatusCodes.Status400BadRequest, apiErrors);
+                    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    break;
 
                 default:
                     apiErrors = new List<ApiError>();
