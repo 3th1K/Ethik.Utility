@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace Ethik.Utility.Data.Repository;
+﻿namespace Ethik.Utility.Data.Repository;
 
 public static class RepositoryErrorCodes
 {

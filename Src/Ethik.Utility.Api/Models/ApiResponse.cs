@@ -83,7 +83,7 @@ public sealed class ApiResponse<T>
     /// <param name="statusCode">The HTTP status code for the response.</param>
     /// <param name="errors">An optional list of errors to include in the response.</param>
     /// <returns>An instance of <see cref="ApiResponse{T}"/> representing a failed response.</returns>
-    public static ApiResponse<T> Failure(string message, int statusCode, List<ApiError>? errors = null)
+    public static ApiResponse<T> Failure(string message, int statusCode = StatusCodes.Status500InternalServerError, List<ApiError>? errors = null)
     {
         var response = new ApiResponse<T>
         {
