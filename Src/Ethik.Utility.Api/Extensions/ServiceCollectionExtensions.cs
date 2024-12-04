@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
     {
         // Add a global exception handler service.
         services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
         return services;
     }
 

@@ -30,6 +30,16 @@ public class ApiValidationFailure
         ErrorCode = "GENERIC_VALIDATION_ERROR"; // Default error code
     }
 
+    public ApiValidationFailure(string propertyName, string errorMessage, object? attemptedValue, Dictionary<string, object> formattedMessagePlaceholderValues, string severity, string errorCode)
+    {
+        PropertyName = propertyName;
+        ErrorMessage = errorMessage;
+        AttemptedValue = attemptedValue;
+        FormattedMessagePlaceholderValues = formattedMessagePlaceholderValues;
+        Severity = severity;
+        ErrorCode = errorCode;
+    }
+
     public override string ToString()
     {
         return ErrorMessage ?? string.Empty;
