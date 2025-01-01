@@ -151,10 +151,10 @@ The `IBaseEntity` interface represents the base structure for an entity within t
 
 - **IsDeleted**  
   Gets or sets a value indicating whether the entity is marked as deleted.  
-  **Type:** `bool?`  
+  **Type:** `bool`  
   **Example:**  
   ```csharp
-  public bool? IsDeleted { get; set; } = false;
+  public bool IsDeleted { get; set; } = false;
   ```
 
 ## IBaseRepository<T> Interface
