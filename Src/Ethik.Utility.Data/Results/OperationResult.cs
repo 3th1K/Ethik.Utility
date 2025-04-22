@@ -23,6 +23,15 @@ public sealed class OperationResult<T>
     }
 
     /// <summary>
+    /// Private constructor for a success/failed result.
+    /// </summary>
+    private OperationResult(T data, bool isSuccess)
+    {
+        Data = data;
+        IsSuccess = isSuccess;
+    }
+
+    /// <summary>
     /// Private constructor for a failed result.
     /// </summary>
     private OperationResult(string errorMessage, string errorCode, int depth = 1, Exception? exception = null)
@@ -81,9 +90,10 @@ public sealed class OperationResult<T>
     /// <param name="otherResult">The result to stack errors from.</param>
     public static OperationResult<T> From<TInput>(OperationResult<TInput> otherResult)
     {
-        var result = new OperationResult<T>(default!);
+        var result = new OperationResult<T>(default!, otherResult.IsSuccess);
         result.StackErrors(otherResult);
-        result.Metadata.AddRange(otherResult.Metadata);
+        result.Metadata.AddRange(otherResult.Metadata);   
+
         return result;
     }
 
@@ -107,6 +117,18 @@ public sealed class OperationResult<T>
     {
         var newError = new OperationError(errorMessage, errorCode, GetCurrentDepth() + 1, exception);
         ErrorStack.Add(newError);
+    }
+    /// <summary>
+    /// Match error code if present in the error stack
+    /// </summary>
+    /// <param name="errorCode">Error code to match</param>
+    /// <returns></returns>
+    public bool MatchError(string errorCode)
+    {
+        if (IsSuccess)
+            return false;
+        
+        return ErrorStack?.Any(error => error.ErrorCode == errorCode) ?? false;
     }
 
     /// <summary>

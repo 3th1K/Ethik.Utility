@@ -1,5 +1,5 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using Newtonsoft.Json;
+using System.Text;
 
 namespace Ethik.Utility.Common.Logging;
 
@@ -145,11 +145,31 @@ public class LogMessageBuilder : ILogMessageBuilder
     /// <param name="property">The name of the property.</param>
     /// <param name="value">The value of the property.</param>
     /// <returns>The current instance of <see cref="ILogMessageBuilder"/> for chaining.</returns>
-    public ILogMessageBuilder WithProperty(string property, string value)
+    public ILogMessageBuilder WithProperty(string property, object value)
     {
-        if (!string.IsNullOrWhiteSpace(property) && !string.IsNullOrWhiteSpace(value))
+        if (!string.IsNullOrWhiteSpace(property) && value != null)
         {
-            _property = $"{_property}[{property}: {value}] ";
+            string serializedValue;
+
+            if (value is Exception ex)
+            {
+                // Serialize only the necessary exception properties
+                serializedValue = JsonConvert.SerializeObject(new
+                {
+                    ex.Message,
+                    ex.StackTrace
+                });
+            }
+            else
+            {
+                // Serialize the object using Newtonsoft.Json
+                serializedValue = JsonConvert.SerializeObject(value, Formatting.Indented, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+            }
+
+            _property = $"{_property}[{property}: {serializedValue}] ";
         }
         return this;
     }
@@ -230,7 +250,7 @@ public class LogMessageBuilder : ILogMessageBuilder
             LineNumber = _lineNumber,
             Exception = _exception
         };
-        return JsonSerializer.Serialize(logObject);
+        return JsonConvert.SerializeObject(logObject);
     }
 
     /// <summary>

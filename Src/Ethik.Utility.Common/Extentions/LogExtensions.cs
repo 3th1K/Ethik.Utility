@@ -220,7 +220,7 @@ public static class LogExtensions
         var builder = new LogMessageBuilder()
             .WithApp(APP)
             .WithCallerMethodAndClass(callerMethod, callerFilePath)
-            .WithProperty(propertyName, propertyValue?.ToString() ?? "null");
+            .WithProperty(propertyName, propertyValue);
 
         // Log at Debug level if enabled
         if (logger.IsEnabled(LogLevel.Debug))
@@ -233,7 +233,7 @@ public static class LogExtensions
             .WithApp(APP)
             .WithCallerMethodAndClass(callerMethod, callerFilePath)
             .WithMessage(message)
-            .WithProperty(propertyName, propertyValue?.ToString() ?? "null");
+            .WithProperty(propertyName, propertyValue);
 
         // Log at Debug level if enabled
         if (logger.IsEnabled(LogLevel.Debug))

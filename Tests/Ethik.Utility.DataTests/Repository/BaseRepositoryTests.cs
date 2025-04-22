@@ -175,7 +175,7 @@ public class TestEntity : IBaseEntity
     public string Id { get; set; }
     public DateTime Created { get; set; }
     public DateTime LastModified { get; set; }
-    public bool? IsDeleted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public bool IsDeleted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }+
 }
 
 // Mocked DbContext

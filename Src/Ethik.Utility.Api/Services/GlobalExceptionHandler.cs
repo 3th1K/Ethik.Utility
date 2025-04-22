@@ -1,5 +1,5 @@
-﻿using Ethik.Utility.Api.Exceptions;
-using Ethik.Utility.Api.Models;
+﻿using Ethik.Utility.Api.Models;
+using Ethik.Utility.Api.Validation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -37,7 +37,7 @@ namespace Ethik.Utility.Api.Services
 
             switch (exception)
             {
-                case ApiValidationException validationException:
+                case ValidationException validationException:
                     apiErrors = validationException.Errors.Select(e => new ApiError
                     {
                         ErrorCode = e.ErrorCode,

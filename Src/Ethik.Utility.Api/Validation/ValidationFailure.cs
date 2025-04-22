@@ -1,7 +1,6 @@
-﻿namespace Ethik.Utility.Api.Models;
-
+﻿namespace Ethik.Utility.Api.Validation;
 [Serializable]
-public class ApiValidationFailure
+public class ValidationFailure
 {
     public string PropertyName { get; set; }
     public string ErrorMessage { get; set; }
@@ -10,27 +9,27 @@ public class ApiValidationFailure
     public string ErrorCode { get; set; }
     public Dictionary<string, object> FormattedMessagePlaceholderValues { get; set; }
 
-    public ApiValidationFailure(string propertyName, string errorMessage)
+    public ValidationFailure(string propertyName, string errorMessage)
         : this(propertyName, errorMessage, null, new Dictionary<string, object>())
     {
     }
 
-    public ApiValidationFailure(string propertyName, string errorMessage, object? attemptedValue)
+    public ValidationFailure(string propertyName, string errorMessage, object? attemptedValue)
         : this(propertyName, errorMessage, attemptedValue, new Dictionary<string, object>())
     {
     }
 
-    public ApiValidationFailure(string propertyName, string errorMessage, object? attemptedValue, Dictionary<string, object> formattedMessagePlaceholderValues)
+    public ValidationFailure(string propertyName, string errorMessage, object? attemptedValue, Dictionary<string, object> formattedMessagePlaceholderValues)
     {
         PropertyName = propertyName;
         ErrorMessage = errorMessage;
         AttemptedValue = attemptedValue;
         FormattedMessagePlaceholderValues = formattedMessagePlaceholderValues;
         Severity = "Error"; // Default severity
-        ErrorCode = "GENERIC_VALIDATION_ERROR"; // Default error code
+        ErrorCode = "VALIDATION_ERROR"; // Default error code
     }
 
-    public ApiValidationFailure(string propertyName, string errorMessage, object? attemptedValue, Dictionary<string, object> formattedMessagePlaceholderValues, string severity, string errorCode)
+    public ValidationFailure(string propertyName, string errorMessage, object? attemptedValue, Dictionary<string, object> formattedMessagePlaceholderValues, string severity, string errorCode)
     {
         PropertyName = propertyName;
         ErrorMessage = errorMessage;

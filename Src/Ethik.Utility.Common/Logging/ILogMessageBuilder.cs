@@ -79,7 +79,7 @@ public interface ILogMessageBuilder
     /// <param name="property">The name of the property.</param>
     /// <param name="value">The value of the property.</param>
     /// <returns>The current instance of <see cref="ILogMessageBuilder"/> for chaining.</returns>
-    ILogMessageBuilder WithProperty(string property, string value);
+    ILogMessageBuilder WithProperty(string property, object value);
 
     /// <summary>
     /// Sets exception details to be included in the log message.
