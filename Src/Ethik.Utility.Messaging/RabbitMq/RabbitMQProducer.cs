@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Ethik.Utility.Messaging.Serialization;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
@@ -60,5 +61,21 @@ public class RabbitMQProducer
         }
 
         _logger.LogInformation("Completed sending {Total} messages to {Exchange}", count, exchange);
+    }
+
+    public async Task SendMessageAsync<T>(T message, string exchange, CancellationToken cancellationToken)
+    {
+        using var connection = await _connectionFactory.CreateConnectionAsync();
+        using var channel = await connection.CreateChannelAsync();
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var body = new JsonMessageSerializer().Serialize(message);
+
+        await channel.BasicPublishAsync(
+            exchange: exchange,
+            routingKey: "",
+            body: body,
+            cancellationToken);
     }
 }

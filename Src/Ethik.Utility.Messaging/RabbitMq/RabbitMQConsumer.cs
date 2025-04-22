@@ -211,7 +211,9 @@ public class RabbitMQConsumer : IRabbitMQConsumer
                 new RabbitMQMessageContext {
                     DeliveryTag = ea.DeliveryTag,
                     Headers = ea.BasicProperties?.Headers ?? new Dictionary<string, object?>(),
-                    Redelivered = ea.Redelivered
+                    Redelivered = ea.Redelivered,
+                    Exchange = ea.Exchange,
+                    Queue = queueName,
                 },
                 ctsTimeout.Token);
 
