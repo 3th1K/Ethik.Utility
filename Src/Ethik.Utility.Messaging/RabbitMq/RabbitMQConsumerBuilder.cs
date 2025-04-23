@@ -27,13 +27,6 @@ public class RabbitMQConsumerBuilder
         return this;
     }
 
-    public RabbitMQConsumerBuilder MessageHandler<T>(Func<T, RabbitMQMessageContext, CancellationToken, Task<bool>> handler)
-    {
-        _config.MessageType = typeof(T);
-        _config.MessageHandler = async (msg, ctx, ct) =>
-            await handler((T)msg, ctx, ct);
-        return this;
-    }
 
     public RabbitMQConsumerBuilder WithConfiguration(Action<RabbitMQConsumerConfiguration> configure)
     {
@@ -41,11 +34,11 @@ public class RabbitMQConsumerBuilder
         return this;
     }
 
-    public RabbitMQConsumer Build(ILogger<RabbitMQConsumer> logger, IMessageSerializer serializer)
+    public RabbitMQConsumer Build(ILogger<RabbitMQConsumer> logger, IMessageSerializer serializer, ConsumerExecutorRegistry customExecutorRegistry)
     {
         ValidateConfiguration();
         SetDefaultRetryPolicyIfMissing();
-        return new RabbitMQConsumer(_config, logger, serializer);
+        return new RabbitMQConsumer(_config, logger, serializer, customExecutorRegistry);
     }
 
     private void ValidateConfiguration()
@@ -64,13 +57,7 @@ public class RabbitMQConsumerBuilder
         if (!_config.ListeningQueues.Any())
             errors.Add("Listening queues must be specified");
 
-        if (_config.MessageHandler == null)
-            errors.Add("Message handler must be specified");
-
-        if (_config.MessageType == null)
-            errors.Add("Message type must be specified through WithMessageHandler");
-
-        if (_config.MaxWaitTimeMilliseconds != -1 && _config.MaxWaitTimeMilliseconds < 500)
+        if (_config.MaxWaitTimeMilliseconds is not null && _config.MaxWaitTimeMilliseconds.Value.TotalMilliseconds < 500)
             errors.Add("Maximum wait time for messages cannot be less than 500 milliseconds");
 
         if (errors.Count > 0)
@@ -108,7 +95,7 @@ public class RabbitMQConsumerBuilder
         return this;
     }
 
-    public RabbitMQConsumerBuilder SetMaxWaitTimeForMessages(long milliseconds)
+    public RabbitMQConsumerBuilder SetMaxWaitTimeForMessages(TimeSpan milliseconds)
     {
         _config.MaxWaitTimeMilliseconds = milliseconds;
         return this;

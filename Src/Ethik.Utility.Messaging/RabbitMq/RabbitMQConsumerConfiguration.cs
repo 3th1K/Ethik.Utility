@@ -12,7 +12,8 @@ public class RabbitMQConsumerConfiguration
     public int MaxDegreeOfParallelism { get; set; } = Environment.ProcessorCount * 2;
     public TimeSpan MessageProcessingTimeout { get; set; } = TimeSpan.FromMinutes(5);
     public RetryPolicy RetryPolicy { get; set; } = new RetryPolicy();
-    public Type MessageType { get; set; } = null!;
-    public Func<object, RabbitMQMessageContext, CancellationToken, Task<bool>> MessageHandler { get; set; } = null!;
-    public long MaxWaitTimeMilliseconds { get; set; } = -1;
+    //public Type MessageType { get; set; } = null!;
+    //public Func<object, RabbitMQMessageContext, CancellationToken, Task<bool>> MessageHandler { get; set; } = null!;
+    public TimeSpan? MaxWaitTimeMilliseconds { get; set; } = null;
+    public ushort NumberOfWorkers { get; set; } = 1;
 }

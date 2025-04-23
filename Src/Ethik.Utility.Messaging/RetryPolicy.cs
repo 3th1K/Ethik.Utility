@@ -1,6 +1,4 @@
-﻿
-
-namespace Ethik.Utility.Messaging.RabbitMq;
+﻿namespace Ethik.Utility.Messaging;
 
 public class RetryPolicy
 {

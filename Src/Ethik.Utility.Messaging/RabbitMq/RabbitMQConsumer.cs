@@ -1,16 +1,19 @@
 ﻿using Ethik.Utility.Messaging.Serialization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Win32;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text;
 
 namespace Ethik.Utility.Messaging.RabbitMq;
 
 public class RabbitMQConsumer : IRabbitMQConsumer
 {
     private readonly RabbitMQConsumerConfiguration _config;
+    private readonly ConsumerExecutorRegistry _registry;
     private readonly ILogger<RabbitMQConsumer> _logger;
     private readonly IMessageSerializer _serializer;
     private readonly SemaphoreSlim _processingSemaphore;
@@ -22,11 +25,11 @@ public class RabbitMQConsumer : IRabbitMQConsumer
     private readonly List<CancellationTokenSource> _queueCts;
     private readonly Stopwatch autoShutdownWatch;
     private readonly Stopwatch mainWatch;
-    private int messageCount;
 
-    public RabbitMQConsumer(RabbitMQConsumerConfiguration config, ILogger<RabbitMQConsumer> logger, IMessageSerializer serializer)
+    public RabbitMQConsumer(RabbitMQConsumerConfiguration config, ILogger<RabbitMQConsumer> logger, IMessageSerializer serializer, ConsumerExecutorRegistry registry)
     {
         _activeChannels = new ConcurrentDictionary<int, IChannel>();
+        _registry = registry;
         _queueCts = [];
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _logger = logger;
@@ -34,7 +37,6 @@ public class RabbitMQConsumer : IRabbitMQConsumer
         _processingSemaphore = new SemaphoreSlim(_config.MaxDegreeOfParallelism);
         autoShutdownWatch = Stopwatch.StartNew();
         mainWatch = Stopwatch.StartNew();
-        messageCount = 0;
     }
 
     public async Task StartConsumingAsync()
@@ -46,7 +48,7 @@ public class RabbitMQConsumer : IRabbitMQConsumer
         await InitializeConnectionAsync();
         StartConsumers();
 
-        if (_config.MaxWaitTimeMilliseconds != -1)
+        if (_config.MaxWaitTimeMilliseconds is not null)
         {
             _ = Task.Run(() => AutoShutdownAsync(_cts.Token))
             .ContinueWith(t =>
@@ -67,7 +69,7 @@ public class RabbitMQConsumer : IRabbitMQConsumer
             UserName = _config.UserName,
             Password = _config.Password,
             VirtualHost = _config.VirtualHost,
-            ConsumerDispatchConcurrency = 1, // need more info
+            ConsumerDispatchConcurrency = _config.NumberOfWorkers,
             AutomaticRecoveryEnabled = true,
             NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
             TopologyRecoveryEnabled = true,
@@ -90,11 +92,10 @@ public class RabbitMQConsumer : IRabbitMQConsumer
 
     public async Task AutoShutdownAsync(CancellationToken token)
     {
+        if (_config.MaxWaitTimeMilliseconds is null) throw new InvalidOperationException("MaxWaitTimeMilliseconds is null, code should not reach this point");
         while (!token.IsCancellationRequested)
         {
-            //_logger.LogInformation(watch.ElapsedMilliseconds.ToString());
-
-            if (autoShutdownWatch.ElapsedMilliseconds > _config.MaxWaitTimeMilliseconds)
+            if (autoShutdownWatch.ElapsedMilliseconds > _config.MaxWaitTimeMilliseconds.Value.TotalMilliseconds)
             {
                 _logger.LogDebug("Waited for {time} ms for messages before shutting down.", _config.MaxWaitTimeMilliseconds);
                 await StopConsumingAsync();
@@ -199,18 +200,55 @@ public class RabbitMQConsumer : IRabbitMQConsumer
             autoShutdownWatch.Restart();
         }
         var channel = ((AsyncEventingBasicConsumer)sender).Channel;
-        _logger.LogDebug("Received message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
+        //_logger.LogDebug("Received message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
+        _logger.LogDebug("Recieved message {tag}, Thread {thread}", ea.DeliveryTag, Thread.CurrentThread.ManagedThreadId);
 
         await _processingSemaphore.WaitAsync(_cts.Token);
         try
         {
             using var ctsTimeout = new CancellationTokenSource(_config.MessageProcessingTimeout);
-            var message = _serializer.Deserialize(ea.Body.ToArray(), _config.MessageType);
-            var success = await _config.MessageHandler(
+            var headers = ea?.BasicProperties?.Headers?
+            .Where(pair => pair.Value is byte[] byteArray)
+            .ToDictionary(
+                pair => pair.Key,
+                pair => Encoding.UTF8.GetString((byte[])pair.Value)
+            ) ?? [];
+            if (!headers.TryGetValue("MessageType", out var typeName))
+            {
+                //_logger.LogWarning("Missing or invalid MessageType header. Rejecting message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
+                //await RejectAndLogAsync(channel, ea.DeliveryTag, requeue: false, queueName);
+                //return;
+                typeName = typeof(object).Name;
+                headers.Add("MessageType", "Object");
+            }
+            var messageType = ResolveMessageTypeCached(typeName);
+
+            if (messageType == null)
+            {
+                _logger.LogWarning("Unknown message type: {MessageType}", typeName);
+                await RejectAndLogAsync(channel, ea.DeliveryTag, requeue: false, queueName);
+                return;
+            }
+            var message = _serializer.Deserialize(ea.Body.ToArray(), messageType);
+            if (!_registry.TryGetExecutor(messageType, out var executor))
+            {
+                _logger.LogWarning("No consumer registered for message type: {MessageType}", typeName);
+                await RejectAndLogAsync(channel, ea.DeliveryTag, requeue: false, queueName);
+                return;
+            }
+            var context = new RabbitMQMessageContext
+            {
+                DeliveryTag = ea.DeliveryTag,
+                Headers = headers,
+                Redelivered = ea.Redelivered,
+                Exchange = ea.Exchange,
+                Queue = queueName
+            };
+            var success = await executor(
                 message,
                 new RabbitMQMessageContext {
                     DeliveryTag = ea.DeliveryTag,
-                    Headers = ea.BasicProperties?.Headers ?? new Dictionary<string, object?>(),
+                    Headers = headers ?? [],
                     Redelivered = ea.Redelivered,
                     Exchange = ea.Exchange,
                     Queue = queueName,
@@ -220,8 +258,8 @@ public class RabbitMQConsumer : IRabbitMQConsumer
             if (success)
             {
                 await channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
-                _logger.LogInformation("Acked message {Tag} on queue {Queue}",
-                                        ea.DeliveryTag, queueName);
+                //_logger.LogInformation("Acked message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
+                _logger.LogDebug("Acked message {tag}, Thread {thread}", ea.DeliveryTag, Thread.CurrentThread.ManagedThreadId);
             }
             else
             {
@@ -237,10 +275,6 @@ public class RabbitMQConsumer : IRabbitMQConsumer
         finally
         {
             _processingSemaphore.Release();
-            lock (new object())
-            {
-                messageCount++;
-            }
         }
     }
 
@@ -307,7 +341,7 @@ public class RabbitMQConsumer : IRabbitMQConsumer
             _connection.Dispose();
             var ms = mainWatch.ElapsedMilliseconds;
             mainWatch.Stop();
-            _logger.LogDebug("Processed {count} messages & Total time elapsed : {Time}", messageCount, TimeSpan.FromMilliseconds(ms));
+            _logger.LogDebug("Total time elapsed : {Time}", TimeSpan.FromMilliseconds(ms));
         }
     }
 
@@ -439,4 +473,26 @@ public class RabbitMQConsumer : IRabbitMQConsumer
     {
         DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
     }
+
+    private Type? ResolveMessageType(string typeName)
+    {
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var type = assembly.GetTypes().FirstOrDefault(t =>
+                t.FullName == typeName || t.Name == typeName);
+            if (type != null)
+                return type;
+        }
+
+        return null;
+    }
+
+
+    private readonly ConcurrentDictionary<string, Type?> _typeCache = new();
+
+    private Type? ResolveMessageTypeCached(string typeName)
+    {
+        return _typeCache.GetOrAdd(typeName, ResolveMessageType);
+    }
+
 }
