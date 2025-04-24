@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Ethik.Utility.Messaging.RabbitMq;
 
-public class RabbitMQConsumer : IRabbitMQConsumer
+public class RabbitMQConsumer : IConsumer
 {
     private readonly RabbitMQConsumerConfiguration _config;
     private readonly ConsumerExecutorRegistry _registry;
@@ -200,8 +200,8 @@ public class RabbitMQConsumer : IRabbitMQConsumer
             autoShutdownWatch.Restart();
         }
         var channel = ((AsyncEventingBasicConsumer)sender).Channel;
-        //_logger.LogDebug("Received message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
-        _logger.LogDebug("Recieved message {tag}, Thread {thread}", ea.DeliveryTag, Thread.CurrentThread.ManagedThreadId);
+        _logger.LogDebug("Received message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
+        //_logger.LogDebug("Recieved message {tag}, Thread {thread}", ea.DeliveryTag, Thread.CurrentThread.ManagedThreadId);
 
         await _processingSemaphore.WaitAsync(_cts.Token);
         try
@@ -258,8 +258,8 @@ public class RabbitMQConsumer : IRabbitMQConsumer
             if (success)
             {
                 await channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
-                //_logger.LogInformation("Acked message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
-                _logger.LogDebug("Acked message {tag}, Thread {thread}", ea.DeliveryTag, Thread.CurrentThread.ManagedThreadId);
+                _logger.LogInformation("Acked message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
+                //_logger.LogDebug("Acked message {tag}, Thread {thread}", ea.DeliveryTag, Thread.CurrentThread.ManagedThreadId);
             }
             else
             {

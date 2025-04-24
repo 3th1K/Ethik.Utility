@@ -20,27 +20,61 @@ public class MessageRegistrationConfigurator
         _services = services;
     }
 
-    public void UseRabbitMQ(IConfiguration configuration, string sectionName = "RabbitMQConfiguration")
+    public void UseRabbitMQ(IConfiguration configuration, string consumerSectionName = "RabbitMQConfiguration", string? publisherSectionName = null)
     {
-        var config = new RabbitMQConsumerConfiguration();
-        configuration.GetSection(sectionName).Bind(config);
+        var consumerConfig = new RabbitMQConsumerConfiguration();
+        configuration.GetSection(consumerSectionName).Bind(consumerConfig);
+        _services.AddSingleton(consumerConfig);
 
-        _services.AddSingleton(config);
+        if (!string.IsNullOrWhiteSpace(publisherSectionName))
+        {
+            var publisherConfig = new RabbitMQPublisherConfiguration();
+            configuration.GetSection(publisherSectionName).Bind(publisherConfig);
+            _services.AddSingleton(publisherConfig);
+        }
+        else
+        {
+            _services.AddSingleton<RabbitMQPublisherConfiguration>(consumerConfig);
+        }
+
         _services.AddSingleton<IMessageSerializer, JsonMessageSerializer>();
-        _services.AddSingleton<RabbitMQConsumer>();
-        _services.AddHostedService<RabbitMQConsumerHostedService>();
+        _services.AddSingleton<IConsumer, RabbitMQConsumer>();
+        _services.AddHostedService<ConsumerHostedService>();
+        _services.AddSingleton<IPublisher, RabbitMqPublisher>();
     }
 
-    public void UseRabbitMQ(Action<RabbitMQConsumerConfiguration> rabbitConfig)
+    public void UseRabbitMQ( Action<RabbitMQConsumerConfiguration> rabbitConsumerConfig, Action<RabbitMQPublisherConfiguration>? rabbitPublisherConfig = null)
     {
-        var config = new RabbitMQConsumerConfiguration();
-        rabbitConfig(config);
+        var consumerConfig = new RabbitMQConsumerConfiguration();
+        rabbitConsumerConfig(consumerConfig);
+        _services.AddSingleton(consumerConfig);
 
-        _services.AddSingleton(config);
+        if (rabbitPublisherConfig != null)
+        {
+            var publisherConfig = new RabbitMQPublisherConfiguration();
+            rabbitPublisherConfig(publisherConfig);
+            _services.AddSingleton(publisherConfig);
+        }
+        else
+        {
+            _services.AddSingleton<RabbitMQPublisherConfiguration>(consumerConfig);
+        }
+
         _services.AddSingleton<IMessageSerializer, JsonMessageSerializer>();
-        _services.AddSingleton<RabbitMQConsumer>();
-        _services.AddHostedService<RabbitMQConsumerHostedService>();
+        _services.AddSingleton<IConsumer, RabbitMQConsumer>();
+        _services.AddHostedService<ConsumerHostedService>();
+        _services.AddSingleton<IPublisher, RabbitMqPublisher>();
     }
+    public void UseRabbitMQ(Action<RabbitMQPublisherConfiguration> rabbitPublisherConfig)
+    {
+        var publisherConfig = new RabbitMQPublisherConfiguration();
+        rabbitPublisherConfig(publisherConfig);
+        _services.AddSingleton(publisherConfig);
+
+        _services.AddSingleton<IMessageSerializer, JsonMessageSerializer>();
+        _services.AddSingleton<IPublisher, RabbitMqPublisher>();
+    }
+
 
     public void AddConsumer<TConsumer>() where TConsumer : class
     {

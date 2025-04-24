@@ -1,14 +1,14 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Ethik.Utility.Messaging.RabbitMq;
+namespace Ethik.Utility.Messaging;
 
-public class RabbitMQConsumerHostedService : IHostedService
+public class ConsumerHostedService : IHostedService
 {
-    private readonly RabbitMQConsumer _consumer;
-    private readonly ILogger<RabbitMQConsumerHostedService> _logger;
+    private readonly IConsumer _consumer;
+    private readonly ILogger<ConsumerHostedService> _logger;
 
-    public RabbitMQConsumerHostedService(RabbitMQConsumer consumer, ILogger<RabbitMQConsumerHostedService> logger)
+    public ConsumerHostedService(IConsumer consumer, ILogger<ConsumerHostedService> logger)
     {
         _consumer = consumer;
         _logger = logger;
@@ -22,7 +22,7 @@ public class RabbitMQConsumerHostedService : IHostedService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to start RabbitMQ consumer.");
+            _logger.LogError(ex, "Failed to start consumer.");
         }
     }
 

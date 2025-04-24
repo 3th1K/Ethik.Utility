@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client;
 
 namespace Ethik.Utility.Messaging;
-public static class ConsumerExtensions
+public static class MessagingExtensions
 {
-    public static IServiceCollection UseMessaging(this IServiceCollection services, Action<MessageRegistrationConfigurator> configure)
+    public static IServiceCollection AddMessaging(this IServiceCollection services, Action<MessageRegistrationConfigurator> configure)
     {
         if (configure == null)
         {
