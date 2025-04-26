@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Ethik.Utility.Api.Models;
+namespace Ethik.Utility.Api.Contracts;
 
 /// <summary>
 /// Represents detailed information about an exception.

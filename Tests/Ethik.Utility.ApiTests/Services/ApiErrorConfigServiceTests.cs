@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using Moq;
 using System.Text.Json;
+using Ethik.Utility.Api.Contracts;
 
 namespace Ethik.Utility.Api.Services.Tests;
 

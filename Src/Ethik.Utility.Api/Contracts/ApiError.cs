@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace Ethik.Utility.Api.Models;
+namespace Ethik.Utility.Api.Contracts;
 
 /// <summary>
 /// Represents an API error with detailed information for error handling and reporting.

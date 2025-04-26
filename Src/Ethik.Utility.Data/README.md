@@ -1,4 +1,4 @@
-# Ethik.Utility.Data NuGet Package
+# Ethik.Utility.Data NuGet Package (not updated doc)
 
 ## Overview
 The `Ethik.Utility.Data` NuGet package provides a set of utilities for handling Database related tasks in .NET applications.

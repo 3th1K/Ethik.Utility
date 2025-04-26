@@ -16,10 +16,12 @@ jobs:
     strategy:
       matrix:
         project:
-          # List all your project paths relative to the solution root
+          # List of project paths relative to the solution root
           - Src/Ethik.Utility.Api/Ethik.Utility.Api.csproj
           - Src/Ethik.Utility.Common/Ethik.Utility.Common.csproj
+          - Src/Ethik.Utility.CQRS/Ethik.Utility.CQRS.csproj
           - Src/Ethik.Utility.Data/Ethik.Utility.Data.csproj
+          - Src/Ethik.Utility.Messaging/Ethik.Utility.Messaging.csproj
           - Src/Ethik.Utility.Security/Ethik.Utility.Security.csproj
 
     steps:
@@ -46,7 +48,9 @@ jobs:
         project:
           - Tests/Ethik.Utility.ApiTests/Ethik.Utility.ApiTests.csproj
           - Tests/Ethik.Utility.CommonTests/Ethik.Utility.CommonTests.csproj
+          # CQRS test 
           - Tests/Ethik.Utility.DataTests/Ethik.Utility.DataTests.csproj
+          # Messaging test 
           - Tests/Ethik.Utility.SecurityTests/Ethik.Utility.SecurityTests.csproj
 
     steps:
@@ -81,7 +85,9 @@ jobs:
           # List all your project paths relative to the solution root
           - Src/Ethik.Utility.Api/Ethik.Utility.Api.csproj
           - Src/Ethik.Utility.Common/Ethik.Utility.Common.csproj
+          - Src/Ethik.Utility.CQRS/Ethik.Utility.CQRS.csproj
           - Src/Ethik.Utility.Data/Ethik.Utility.Data.csproj
+          - Src/Ethik.Utility.Messaging/Ethik.Utility.Messaging.csproj
           - Src/Ethik.Utility.Security/Ethik.Utility.Security.csproj
 
     steps:

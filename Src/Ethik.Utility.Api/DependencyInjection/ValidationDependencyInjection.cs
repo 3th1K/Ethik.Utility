@@ -1,11 +1,12 @@
-﻿using Ethik.Utility.Api.Validation.Interfaces;
+﻿using Ethik.Utility.Api.Validation;
+using Ethik.Utility.Api.Validation.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace Ethik.Utility.Api.Validation;
+namespace Ethik.Utility.Api.DependencyInjection;
 
-public static class ValidationExtensions
+public static class ValidationDependencyInjection
 {
     public static void AddAutoValidation(this IServiceCollection services, Action<ValidationFilterConfiguration> configure)
     {

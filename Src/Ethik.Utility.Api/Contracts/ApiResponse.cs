@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Ethik.Utility.Api.Models;
+namespace Ethik.Utility.Api.Contracts;
 
 /// <summary>
 /// Represents the status of an API response.
@@ -157,7 +157,7 @@ public sealed class ApiResponse<T>
     {
         return new ObjectResult(this)
         {
-            StatusCode = this.StatusCode
+            StatusCode = StatusCode
         };
     }
 }

@@ -1,4 +1,4 @@
-﻿using Ethik.Utility.Api.Models;
+﻿using Ethik.Utility.Api.Contracts;
 using Ethik.Utility.Api.Validation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;

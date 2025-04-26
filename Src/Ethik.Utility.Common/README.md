@@ -1,5 +1,5 @@
 
-# Ethik.Utility.Common NuGet Package
+# Ethik.Utility.Common NuGet Package (not updated doc)
 
 ## Overview
 The `Ethik.Utility.Common` NuGet package provides a set of utilities for handling Common tasks in .NET applications.

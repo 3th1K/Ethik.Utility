@@ -1,4 +1,4 @@
-﻿using Ethik.Utility.Api.Models;
+﻿using Ethik.Utility.Api.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Text.Json;

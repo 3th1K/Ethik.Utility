@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Ethik.Utility.Api.Models;
+namespace Ethik.Utility.Api.Contracts;
 
 /// <summary>
 /// Represents the configuration for API errors, containing a dictionary of error codes to their respective error details.

@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
-namespace Ethik.Utility.Api.Extensions;
+namespace Ethik.Utility.Api.DependencyInjection;
 
-public static class ServiceCollectionExtensions
+public static class ApiDependencyInjection
 {
     /// <summary>
     /// Adds and initializes the ApiErrorConfigService to the service collection.
