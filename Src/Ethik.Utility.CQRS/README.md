@@ -1,0 +1,1 @@
+# Ethik.Utility.CQRS NuGet Package
