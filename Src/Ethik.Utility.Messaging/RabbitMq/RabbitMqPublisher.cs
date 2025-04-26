@@ -72,7 +72,12 @@ public class RabbitMqPublisher : IPublisher, IDisposable
             .Where(pair => pair.Value != null)
             .ToDictionary(
                 pair => pair.Key,
-                pair => (object?)Encoding.UTF8.GetBytes(pair.Value)
+                pair =>
+                {
+                    if (pair.Value is not null)
+                        return (object?)Encoding.UTF8.GetBytes(pair.Value);
+                    return string.Empty;
+                }
             ) ?? new Dictionary<string, object?>();
 
         if (formattedHeaders != null && !formattedHeaders.ContainsKey("MessageType"))

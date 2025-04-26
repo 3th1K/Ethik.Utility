@@ -45,6 +45,9 @@ public class ConsumerExecutorRegistry
         };
     }
 
-    public bool TryGetExecutor(Type messageType, out Func<object, IMessageContext, CancellationToken, Task<bool>> executor)
-        => _handlers.TryGetValue(messageType, out executor);
+    public bool TryGetExecutor(Type messageType, out Func<object, IMessageContext, CancellationToken, Task<bool>>? executor)
+    {
+        var result = _handlers.TryGetValue(messageType, out executor);
+        return result;
+    }
 }

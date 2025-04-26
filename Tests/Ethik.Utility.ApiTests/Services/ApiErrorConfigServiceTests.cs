@@ -1,12 +1,4 @@
-﻿using NUnit.Framework;
-using Ethik.Utility.Api.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ethik.Utility.Api.Models;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using Moq;
 using System.Text.Json;

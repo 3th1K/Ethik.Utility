@@ -211,9 +211,14 @@ public class RabbitMQConsumer : IConsumer
             .Where(pair => pair.Value is byte[] byteArray)
             .ToDictionary(
                 pair => pair.Key,
-                pair => Encoding.UTF8.GetString((byte[])pair.Value)
+                pair =>
+                {
+                    if(pair.Value is not null)
+                        return Encoding.UTF8.GetString((byte[])pair.Value);
+                    return null;
+                } 
             ) ?? [];
-            if (!headers.TryGetValue("MessageType", out var typeName))
+            if (!headers.TryGetValue("MessageType", out var typeName) || typeName is null)
             {
                 //_logger.LogWarning("Missing or invalid MessageType header. Rejecting message {Tag} on queue {Queue}", ea.DeliveryTag, queueName);
                 //await RejectAndLogAsync(channel, ea.DeliveryTag, requeue: false, queueName);
@@ -222,7 +227,8 @@ public class RabbitMQConsumer : IConsumer
                 headers.Add("MessageType", "Object");
             }
             var messageType = ResolveMessageTypeCached(typeName);
-
+            if (ea is null)
+                throw new InvalidDataException("Event delivery args is null");
             if (messageType == null)
             {
                 _logger.LogWarning("Unknown message type: {MessageType}", typeName);
@@ -244,8 +250,10 @@ public class RabbitMQConsumer : IConsumer
                 Exchange = ea.Exchange,
                 Queue = queueName
             };
+            if (executor is null)
+                throw new InvalidOperationException();
             var success = await executor(
-                message,
+                message??="",
                 new RabbitMQMessageContext {
                     DeliveryTag = ea.DeliveryTag,
                     Headers = headers ?? [],
